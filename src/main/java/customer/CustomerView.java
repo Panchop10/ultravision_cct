@@ -1,13 +1,9 @@
 package customer;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
 public class CustomerView {
+    private CustomerViewController customerListener;
     private JTable customerTable;
     private JTextField searchTextField;
     private JPanel containerPanel;
@@ -20,8 +16,8 @@ public class CustomerView {
     private JTabbedPane tabbedPane1;
     private JTextField emailFormCustomer;
     private JTextField phoneFormCustomer;
-    private JComboBox comboBox1;
-    private JTextField textField7;
+    private JComboBox subTypeFormCustomer;
+    private JTextField cardNumberFormCustomer;
     private JButton createButton;
     private JButton updateButton;
     private JButton clearButton;
@@ -34,46 +30,23 @@ public class CustomerView {
     private JButton renewSubscriptionButton;
     private JTable tableItemsRented;
     private JTable tablePayments;
-    private String[] column = {"ID", "FIRST NAME", "LAST NAME", "EMAIL", "PHONE", "CREDIT CARD", "SUBSCRIPTION"};
-    private String[][] data = {{"1", "Francisco", "Olivares", "francisco@cct.ie", "0838271885", "XXXX-XXXX-XXXX-0987", "Active"},
-            {"2", "Jose", "Najera", "jose@cct.ie", "0837481123", "XXXX-XXXX-XXXX-3452", "Active"},
-            {"3", "Valentina", "Quiroga", "valentina@cct.ie", "0837277491", "XXXX-XXXX-XXXX-5143", "Inactive"}};
+    private String[] customerColumns = {"ID", "FIRST NAME", "LAST NAME", "EMAIL", "PHONE", "CARD NUMBER", "SUBSCRIPTION"};
+    private String[][] customerData;
 
     public CustomerView() {
-
-        customerTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent event) {
-                if (!event.getValueIsAdjusting() && customerTable.getSelectedRow() > -1) {
-                    // print first column value from selected row
-                    idFormCustomer.setText(customerTable.getValueAt(customerTable.getSelectedRow(), 0).toString());
-                    firstNameFormCustomer.setText(customerTable.getValueAt(customerTable.getSelectedRow(), 1).toString());
-                    lastNameFormCustomer.setText(customerTable.getValueAt(customerTable.getSelectedRow(), 2).toString());
-                    emailFormCustomer.setText(customerTable.getValueAt(customerTable.getSelectedRow(), 3).toString());
-                    phoneFormCustomer.setText(customerTable.getValueAt(customerTable.getSelectedRow(), 4).toString());
-                }
-            }
-        });
-        searchTextField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                DefaultTableModel model = new DefaultTableModel(column, 0);
-
-                for (String[] customer:data) {
-                    if(customer[1].toLowerCase().contains(searchTextField.getText().toLowerCase())){
-                        model.addRow(customer);
-                    }
+        //Add Listener to the customer table
+        ListSelectionModel customerTableModel = customerTable.getSelectionModel();
+        customerTableModel.addListSelectionListener(customerListener.getCustomerTableListener(customerTable, this));
 
 
-                }
-                customerTable.setModel(model);
-                //set column preferred size in our table
-                setColumnsSize();
-            }
-        });
+        //Add listener to search bar
+        searchTextField.addKeyListener(customerListener.filterCustomerListener(this));
     }
 
-    private void setColumnsSize() {
+    /**
+     * Set width of the columns in the customer table
+     */
+    void setColumnsSize() {
         customerTable.getColumnModel().getColumn(0).setPreferredWidth(20);
         customerTable.getColumnModel().getColumn(1).setPreferredWidth(80);
         customerTable.getColumnModel().getColumn(2).setPreferredWidth(80);
@@ -83,13 +56,21 @@ public class CustomerView {
         customerTable.getColumnModel().getColumn(6).setPreferredWidth(90);
     }
 
+    /**
+     *
+     * @return return container panel that contains all the visual parts of the screen but the menu
+     */
     public JPanel getContainerPanel(){
         return this.containerPanel;
     }
 
     private void createUIComponents() {
 
-        customerTable = new JTable(data, column);
+        //Get all customers in array format to display into JTable
+        customerListener = new CustomerViewController();
+        customerData = customerListener.getCustomersTable();
+
+        customerTable = new JTable(customerData, customerColumns);
 
         //set column preferred size in our table
         setColumnsSize();
@@ -120,5 +101,57 @@ public class CustomerView {
 
         tablePayments = new JTable(dataPayments, columnPayments);
 
+        //Populate JComboBox
+        String[] optionsComboBox = customerListener.getSubscriptionFullName();
+        //noinspection unchecked
+        subTypeFormCustomer = new JComboBox(optionsComboBox);
+        subTypeFormCustomer.addActionListener(customerListener);
+
+    }
+
+    /**
+     *
+     * @return array with columns name of the table
+     */
+    String[] getCustomerColumns() {
+        return customerColumns;
+    }
+
+    /**
+     *
+      * @return array with data in the table
+     */
+    String[][] getCustomerData() {
+        return customerData;
+    }
+
+    /**
+     *
+     * @return text written in the search bar
+     */
+    String getSearchString(){
+        return searchTextField.getText().toLowerCase();
+    }
+
+    /**
+     *
+      * @return customer table as JTable
+     */
+    JTable getCustomerTable() {
+        return customerTable;
+    }
+
+    /**
+     *
+     * @param customer receives customer that fills the data in the left form
+     */
+    void fillLeftForm(Customer customer){
+        idFormCustomer.setText(String.valueOf(customer.getCustomerID()));
+        firstNameFormCustomer.setText(customer.getFirstName());
+        lastNameFormCustomer.setText(customer.getLastName());
+        emailFormCustomer.setText(customer.getEmail());
+        phoneFormCustomer.setText(customer.getPhone());
+        cardNumberFormCustomer.setText(customer.getSubscription().getCardNumber());
+        subTypeFormCustomer.setSelectedItem(customer.getSubscription().typeFull);
     }
 }
