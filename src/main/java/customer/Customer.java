@@ -1,7 +1,13 @@
 package customer;
 
+import customer.payment.Payment;
+import customer.payment.PaymentModel;
+import rental.Rental;
+import rental.RentalModel;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Customer {
@@ -11,36 +17,40 @@ public class Customer {
     private String email;
     private String phone;
     private String address;
+    private String loyaltyPoints;
+    private String currentlyRented;
     private Subscription subscription;
 
     //Constructor for customer that comes from the database.
-//    public Customer(int id, String firstName, String lastName, String email, String phone, String address,
-//                    String sTypeShort, String sTypeFull, String sStartDate, String sFinishDate, int sAmountPaid,
-//                    String sCardNumber, String sCardType, int sItemLimit){
-//        this.customerID = id;
-//        this.firstName = firstName;
-//        this.lastName = lastName;
-//        this.email = email;
-//        this.phone = phone;
-//        this.address = address;
-//
-//        //instantiate subscription inner class.
-//        this.subscription = new Subscription(sTypeShort, sTypeFull, sStartDate, sFinishDate, sAmountPaid,
-//                sCardNumber, sCardType, sItemLimit);
-//    }
+    public Customer(String... values){
+    this.customerID = Integer.parseInt(values[0]);
+    this.firstName = values[1];
+    this.lastName = values[2];
+    this.email = values[3];
+    this.phone = values[4];
+    this.address = values[5];
+    this.loyaltyPoints = values[14];
+    this.currentlyRented = values[15];
 
-        //Constructor for customer that comes from the database.
-        public Customer(String... values){
-        this.customerID = Integer.parseInt(values[0]);
-        this.firstName = values[1];
-        this.lastName = values[2];
-        this.email = values[3];
-        this.phone = values[4];
-        this.address = values[5];
+    //instantiate subscription inner class.
+    this.subscription = new Subscription(values[6], values[7], values[8], values[9], Integer.parseInt(values[10]),
+            values[11], values[12], Integer.parseInt(values[13]));
+    }
 
-        //instantiate subscription inner class.
-        this.subscription = new Subscription(values[6], values[7], values[8], values[9], Integer.parseInt(values[10]),
-                values[11], values[12], Integer.parseInt(values[13]));
+    //Constructor for new customers, includes Database creation.
+    public Customer(String firstName, String lastName, String email, String phone, String creditCard, int subscriptionType){
+        this.customerID = CustomerModel.createCustomer(firstName, lastName, email, phone);
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phone = phone;
+        this.address = "";
+        this.loyaltyPoints = "0";
+        this.currentlyRented = "0";
+
+        //Create subscription
+        this.subscription = new Subscription(creditCard);
+        this.subscription.renew(subscriptionType);
     }
 
     public int getCustomerID() {
@@ -71,19 +81,48 @@ public class Customer {
         return subscription;
     }
 
+    public String getLoyaltyPoints() {
+        if(loyaltyPoints == null){
+            return "0";
+        }
+        return loyaltyPoints;
+    }
+
+    public String getCurrentlyRented() {
+        if(currentlyRented == null){
+            return "0";
+        }
+        return currentlyRented;
+    }
+
+    //returns a list of payments made by the customer
+    public ArrayList<Payment> getPayments(){
+            return PaymentModel.getPayments(this.customerID);
+    }
+
+    //returns a list of titles rented by the customer
+    public ArrayList<Rental> getTitlesRented(){
+        return RentalModel.findPerCustomer(this.customerID);
+    }
+
+    //update data
+    public void update(String firstName, String lastName, String email, String phone){
+        CustomerModel.updateCustomer(this.customerID, firstName, lastName, email, phone);
+    }
+
     /**
      * Inner class that handles the subscription of the customer.
      */
     class Subscription{
-        String typeShort;
-        String typeFull;
-        String startDate;
-        String finishDate;
-        int amountPaid;
-        String cardNumber;
-        String cardType;
-        int itemLimit;
-        String status;
+        private String typeShort;
+        private String typeFull;
+        private String startDate;
+        private String finishDate;
+        private int amountPaid;
+        private String cardNumber;
+        private String cardType;
+        private int itemLimit;
+        private String status;
 
         private Subscription(String typeShort, String typeFull, String startDate, String finishDate, int amountPaid,
                      String cardNumber, String cardType, int itemLimit){
@@ -98,6 +137,11 @@ public class Customer {
             this.itemLimit = itemLimit;
             this.setStatus();
 
+        }
+
+        private Subscription(String cardNumber){
+            this.cardNumber = cardNumber;
+            this.cardType = "Master Card";
         }
 
         public String getTypeShort() {
@@ -134,6 +178,11 @@ public class Customer {
 
         public int getItemLimit() {
             return itemLimit;
+        }
+
+        //create a new subscription
+        public void renew(int subscriptionType){
+            CustomerModel.renewSubscription(subscriptionType, this.cardNumber, this.cardType, Customer.this.customerID);
         }
 
         /**

@@ -1,19 +1,20 @@
 package customer;
 
+import customer.payment.Payment;
+import rental.Rental;
+
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class CustomerView {
     private CustomerViewController customerListener;
-    private JTable customerTable;
     private JTextField searchTextField;
     private JPanel containerPanel;
-    private JPanel leftPanel;
-    private JPanel mainPanel;
-    private JPanel bottomPanel;
     private JTextField idFormCustomer;
     private JTextField lastNameFormCustomer;
     private JTextField firstNameFormCustomer;
-    private JTabbedPane tabbedPane1;
     private JTextField emailFormCustomer;
     private JTextField phoneFormCustomer;
     private JComboBox subTypeFormCustomer;
@@ -21,26 +22,45 @@ public class CustomerView {
     private JButton createButton;
     private JButton updateButton;
     private JButton clearButton;
-    private JTextField textField8;
-    private JTextField textField9;
-    private JTextField textField10;
-    private JTextField textField11;
-    private JTextField textField12;
-    private JTextField textField13;
+    private JTextField subTab_startDate;
+    private JTextField subTab_finishDate;
+    private JTextField subTab_amountPaid;
+    private JTextField subTab_loyaltyPoints;
+    private JTextField subTab_currentlyRented;
     private JButton renewSubscriptionButton;
+    private JTable customerTable;
     private JTable tableItemsRented;
     private JTable tablePayments;
     private String[] customerColumns = {"ID", "FIRST NAME", "LAST NAME", "EMAIL", "PHONE", "CARD NUMBER", "SUBSCRIPTION"};
+    private String[] paymentColumns = {"ITEM", "DETAIL", "PAYMENT DATE", "AMOUNT PAID"};
+    private String[] rentalColumns = {"TITLE", "RENTAL DATE", "RETURN DATE", "PRICE"};
     private String[][] customerData;
 
     public CustomerView() {
         //Add Listener to the customer table
         ListSelectionModel customerTableModel = customerTable.getSelectionModel();
-        customerTableModel.addListSelectionListener(customerListener.getCustomerTableListener(customerTable, this));
+        customerTableModel.addListSelectionListener(customerListener.getCustomerTableListener());
 
 
         //Add listener to search bar
-        searchTextField.addKeyListener(customerListener.filterCustomerListener(this));
+        searchTextField.addKeyListener(customerListener.filterCustomerListener());
+
+        //Add listener to clear button
+        clearButton.addActionListener(customerListener);
+        clearButton.setActionCommand("clear");
+
+        //Add listener to subscription button
+        renewSubscriptionButton.addActionListener(customerListener);
+        renewSubscriptionButton.setActionCommand("renew");
+
+        //Add listener to update button
+        updateButton.addActionListener(customerListener);
+        updateButton.setActionCommand("update");
+
+        //Add listener to createButton button
+        createButton.addActionListener(customerListener);
+        createButton.setActionCommand("create");
+
     }
 
     /**
@@ -67,7 +87,7 @@ public class CustomerView {
     private void createUIComponents() {
 
         //Get all customers in array format to display into JTable
-        customerListener = new CustomerViewController();
+        customerListener = new CustomerViewController(this);
         customerData = customerListener.getCustomersTable();
 
         customerTable = new JTable(customerData, customerColumns);
@@ -80,26 +100,13 @@ public class CustomerView {
 
 
         //RENTAL ITEMS TABLE
-        String[][] dataItems = {
-                {"Star Wars I", "01/05/2020", "04/05/2020", "€10"},
-                {"Star Wars II", "01/05/2020", "04/05/2020", "€10"},
-                {"Star Wars III", "01/05/2020", "04/05/2020", "€10"}
-        };
-        String[] columnItems = {"TITLE", "RENTAL DATE", "EXPECTED RETURN DATE", "PRICE"};
-
-        tableItemsRented = new JTable(dataItems, columnItems);
-
+        String[][] dataItems = new String[0][0];
+        tableItemsRented = new JTable(dataItems, rentalColumns);
 
 
         //PAYMENTS TABLE
-        String[][] dataPayments = {
-                {"Rental", "Start Wars I", "01/05/2020", "€10"},
-                {"Subscription", "Movie Lovers", "01/05/2020", "€10"},
-                {"Fine", "Star Wars II", "01/05/2020", "€10"}
-        };
-        String[] columnPayments = {"ITEM", "DETAIL", "PAYMENT DATE", "AMOUNT PAID"};
-
-        tablePayments = new JTable(dataPayments, columnPayments);
+        String[][] dataPayments = new String[0][0];
+        tablePayments = new JTable(dataPayments, paymentColumns);
 
         //Populate JComboBox
         String[] optionsComboBox = customerListener.getSubscriptionFullName();
@@ -107,6 +114,18 @@ public class CustomerView {
         subTypeFormCustomer = new JComboBox(optionsComboBox);
         subTypeFormCustomer.addActionListener(customerListener);
 
+    }
+
+    public void updateCustomerTable(){
+        customerData = customerListener.getCustomersTable();
+        DefaultTableModel modelCustomer = new DefaultTableModel(customerColumns, 0);
+
+        //create rows in the model
+        for (String[] customer:customerData) {
+            modelCustomer.addRow(customer);
+        }
+        customerTable.setModel(modelCustomer);
+        setColumnsSize();
     }
 
     /**
@@ -143,15 +162,130 @@ public class CustomerView {
 
     /**
      *
+     * @return JTextField of the customer
+     */
+    public JTextField getIdFormCustomer() {
+        return idFormCustomer;
+    }
+
+    /**
+     *
+     * @return JComboBox with subscription type
+     */
+    public JComboBox getSubTypeFormCustomer() {
+        return subTypeFormCustomer;
+    }
+
+
+    public String getFirstNameFormCustomer() {
+        return firstNameFormCustomer.getText();
+    }
+
+    public String getLastNameFormCustomer() {
+        return lastNameFormCustomer.getText();
+    }
+
+    public String getEmailFormCustomer() {
+        return emailFormCustomer.getText();
+    }
+
+    public String getPhoneFormCustomer() {
+        return phoneFormCustomer.getText();
+    }
+
+    public String getCardNumberFormCustomer() {
+        return cardNumberFormCustomer.getText();
+    }
+
+
+    /**
+     *
      * @param customer receives customer that fills the data in the left form
      */
-    void fillLeftForm(Customer customer){
+    void fillCustomerDetails(Customer customer){
+        Customer.Subscription custSubscription = customer.getSubscription();
+
+        //Form
         idFormCustomer.setText(String.valueOf(customer.getCustomerID()));
         firstNameFormCustomer.setText(customer.getFirstName());
         lastNameFormCustomer.setText(customer.getLastName());
         emailFormCustomer.setText(customer.getEmail());
         phoneFormCustomer.setText(customer.getPhone());
-        cardNumberFormCustomer.setText(customer.getSubscription().getCardNumber());
-        subTypeFormCustomer.setSelectedItem(customer.getSubscription().typeFull);
+        cardNumberFormCustomer.setText(custSubscription.getCardNumber());
+        subTypeFormCustomer.setSelectedItem(custSubscription.getTypeFull());
+
+        //Subscription Tab
+        subTab_startDate.setText(custSubscription.getStartDate());
+        subTab_finishDate.setText(custSubscription.getFinishDate());
+        subTab_amountPaid.setText("€"+custSubscription.getAmountPaid());
+        subTab_loyaltyPoints.setText(customer.getLoyaltyPoints());
+        subTab_currentlyRented.setText(customer.getCurrentlyRented());
+
+
+
+        //Create loading form for rentals while the data is retrieved from the database.
+        DefaultTableModel modelRentalLoading = new DefaultTableModel(rentalColumns, 0);
+        String[] rowLoading = {"Loading...","Loading...","Loading...","Loading..."};
+        modelRentalLoading.addRow(rowLoading);
+        tableItemsRented.setModel(modelRentalLoading);
+        //Create loading form for payments while the data is retrieved from the database.
+        DefaultTableModel modelPaymentsLoading = new DefaultTableModel(paymentColumns, 0);
+        String[] rowLoading2 = {"Loading...","Loading...","Loading...","Loading..."};
+        modelPaymentsLoading.addRow(rowLoading2);
+        tablePayments.setModel(modelPaymentsLoading);
+
+        //Items Rented tab
+        DefaultTableModel modelRentals = new DefaultTableModel(rentalColumns, 0);
+
+        //create rows in the model
+        for (Rental rental:customer.getTitlesRented()) {
+            String[] row = new String[4];
+            row[0] = rental.getItemTitle();
+            row[1] = rental.getRentalDate();
+            row[2] = rental.getReturnDate();
+            row[3] = "€"+rental.getPrice();
+
+            modelRentals.addRow(row);
+
+        }
+        tableItemsRented.setModel(modelRentals);
+
+        //Payments tab
+        DefaultTableModel modelPayments = new DefaultTableModel(paymentColumns, 0);
+
+        //create rows in the model
+        for (Payment payment:customer.getPayments()) {
+            String[] row = new String[4];
+            row[0] = payment.getItem();
+            row[1] = payment.getDetail();
+            row[2] = payment.getDate();
+            row[3] = "€"+payment.getTotalPaid();
+
+            modelPayments.addRow(row);
+
+        }
+        tablePayments.setModel(modelPayments);
+
+    }
+
+    /**
+     * Clears customer form
+     */
+    public void clearForm(){
+        //FORM
+        idFormCustomer.setText("");
+        firstNameFormCustomer.setText("");
+        lastNameFormCustomer.setText("");
+        emailFormCustomer.setText("");
+        phoneFormCustomer.setText("");
+        cardNumberFormCustomer.setText("");
+        subTypeFormCustomer.setSelectedIndex(0);
+
+        //SUBSCRIPTION TAB
+        subTab_startDate.setText("");
+        subTab_finishDate.setText("");
+        subTab_amountPaid.setText("");
+        subTab_loyaltyPoints.setText("");
+        subTab_currentlyRented.setText("");
     }
 }

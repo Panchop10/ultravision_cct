@@ -1,4 +1,4 @@
-package payment;
+package customer.payment;
 
 public class Payment {
     private String item;
@@ -14,14 +14,14 @@ public class Payment {
     }
 
     /**
-     * @return name of the payment
+     * @return name of the customer.payment
      */
     public String getItem() {
         return item;
     }
 
     /**
-     * @return detail of the payment, e.g. title of the item, subscription plan, etc.
+     * @return detail of the customer.payment, e.g. title of the item, subscription plan, etc.
      */
     public String getDetail() {
         return detail;
@@ -29,7 +29,7 @@ public class Payment {
 
 
     /**
-     * @return date of the payment
+     * @return date of the customer.payment
      */
     public String getDate() {
         return date;

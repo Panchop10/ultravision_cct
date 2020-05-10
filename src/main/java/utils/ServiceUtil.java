@@ -65,4 +65,65 @@ public class ServiceUtil {
         //return data array list with all the rows
         return data;
     }
+
+    /**
+     *
+     * @param query receives the string that is going to be updated/inserted into the database
+     */
+    public static void databaseUpdate(String query){
+        //database credentials
+        String url = ServiceUtil.createSQLUrl();
+        String user = Database.USER.get();
+        String password = Database.PASSWORD.get();
+
+        try {
+            Connection con = DriverManager.getConnection(url, user, password);
+
+            //Create connection and execute query
+            Statement st = con.createStatement();
+            st.executeUpdate(query);
+        }
+        catch (SQLException ex) {
+            System.out.println(ex.getSQLState());
+        }
+    }
+
+    /**
+     *
+     * @param query receives the string with the object that is going to be created into the database
+     * @return int with the id of the object created
+     */
+    public static int databaseCreate(String query){
+        //database credentials
+        String url = ServiceUtil.createSQLUrl();
+        String user = Database.USER.get();
+        String password = Database.PASSWORD.get();
+
+        try {
+            Connection con = DriverManager.getConnection(url, user, password);
+
+            //Notify to the JDBC driver to return the keys.
+            PreparedStatement statement = con.prepareStatement(query,
+                    Statement.RETURN_GENERATED_KEYS);
+
+            int affectedRows = statement.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new SQLException("Creating object failed, no rows affected.");
+            }
+
+            //Get id key returned
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                return (int) generatedKeys.getLong(1);
+            }
+            else {
+                throw new SQLException("Creating object failed, no ID obtained.");
+            }
+        }
+        catch (SQLException ex) {
+            System.out.println(ex.getSQLState());
+            return 0;
+        }
+    }
 }
