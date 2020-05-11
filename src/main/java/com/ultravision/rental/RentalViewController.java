@@ -92,15 +92,7 @@ public class RentalViewController implements ActionListener {
                                 "Success",
                                 JOptionPane.INFORMATION_MESSAGE);
                     }
-
-
-
                 }
-
-
-
-
-
                 view.getParentFrame().setLoading(false);
             }
         }).start();

@@ -50,7 +50,7 @@ public class RentalView {
     }
 
     /**
-     * Set width of the columns in the com.ultravision table
+     * Set width of the columns in the rental table
      */
     void setColumnsSize() {
         customerTable.getColumnModel().getColumn(0).setPreferredWidth(15);
