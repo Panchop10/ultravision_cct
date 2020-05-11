@@ -48,6 +48,30 @@ public class RentalModel {
         return listRentals;
     }
 
+    public static void rentTitle(int itemID, int customerID, int loyalty, int rentalPrice){
+        //query to insert rental item data
+        String query = "INSERT INTO rental\n" +
+                "(item_id,\n" +
+                "customer_id,\n" +
+                "loyalty_transaction,\n" +
+                "rental_date,\n" +
+                "status_rented,\n" +
+                "fine,\n" +
+                "price)\n" +
+                "VALUES\n" +
+                "(\n" +
+                ""+itemID+",\n" +
+                ""+customerID+",\n" +
+                ""+loyalty+",\n" +
+                "NOW(),\n" +
+                "(SELECT item_status FROM item WHERE id = "+itemID+"),\n" +
+                "0,\n" +
+                ""+rentalPrice+");";
+
+        //execute query with service util static method
+        ServiceUtil.databaseUpdate(query);
+    }
+
     /**
      *
      * @return ArrayList of Rentals in the database.
@@ -71,7 +95,7 @@ public class RentalModel {
                 "FROM\n" +
                 "    rental as r\n" +
                 "INNER JOIN rental_status as rs ON r.status_rented = rs.id\n" +
-                "INNER JOIN rental_status as rr ON r.status_returned = rr.id\n" +
+                "LEFT JOIN rental_status as rr ON r.status_returned = rr.id\n" +
                 "INNER JOIN item as i ON r.item_id = i.id\n" +
                 "WHERE r.customer_id = "+customerID+"\n" +
                 "ORDER BY rental_date DESC;";

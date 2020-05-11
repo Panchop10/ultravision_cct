@@ -2,6 +2,7 @@ package com.ultravision;
 
 import com.ultravision.customer.CustomerView;
 import com.ultravision.item.ItemView;
+import com.ultravision.rental.RentalView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,6 +46,15 @@ public class MainController implements ActionListener {
                 break;
             case "rentalMenu":
                 view.setActiveMenu("rentalMenu");
+                view.setLoading(true);
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        view.setContentPanel(new RentalView(view).getContainerPanel());
+                        view.setLoading(false);
+                    }
+                }).start();
                 break;
             case "returnMenu":
                 view.setActiveMenu("returnMenu");

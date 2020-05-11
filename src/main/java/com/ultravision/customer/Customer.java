@@ -113,7 +113,7 @@ public class Customer {
     /**
      * Inner class that handles the subscription of the com.ultravision.
      */
-    class Subscription{
+    public class Subscription{
         private String typeShort;
         private String typeFull;
         private String startDate;

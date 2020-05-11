@@ -47,6 +47,7 @@ public class ItemViewController implements ActionListener {
         final int itemType = view.getItemTypeFormItem().getSelectedIndex();
         new Thread(new Runnable() {
             String itemID = idItemThread;
+            @SuppressWarnings("Duplicates")
             @Override
             public void run() {
                 view.getParentFrame().setLoading(true);
@@ -232,9 +233,11 @@ public class ItemViewController implements ActionListener {
      *
      * @return ListSelectionListener which handles task of fill the item information in the forms of the view
      */
+    @SuppressWarnings("Duplicates")
     ListSelectionListener getItemTableListener(){
         final JTable itemTable = view.getItemTable();
         return new ListSelectionListener() {
+            @SuppressWarnings("Duplicates")
             @Override
             public void valueChanged(ListSelectionEvent event) {
                 //get selected row

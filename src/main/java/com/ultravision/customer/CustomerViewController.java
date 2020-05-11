@@ -313,6 +313,7 @@ public class CustomerViewController implements ActionListener {
      *
      * @return ListSelectionListener which handles task of fill the customer information in the forms of the view
      */
+    @SuppressWarnings("Duplicates")
     ListSelectionListener getCustomerTableListener(){
         final JTable customerTable = view.getCustomerTable();
         return new ListSelectionListener() {
