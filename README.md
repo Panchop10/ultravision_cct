@@ -1,7 +1,5 @@
 # UltraVision
 
-[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
-
 ![alt text](https://ned.ie/downloads/ultravision1.png)
 
 Ultra-Vision is a Music and Video rental shop that rent Music, Music Videos, Movies, and TV Box sets.
@@ -20,7 +18,7 @@ The shop has several titles that can be classified as described in the following
 
 ### Plugins
 
-Dillinger is currently extended with the following plugins. Instructions on how to use them in your own application are linked below.
+UltraVision is currently extended with the following plugins. Instructions on how to use them in your own application are linked below.
 
 | Plugin | README |
 | ------ | ------ |
