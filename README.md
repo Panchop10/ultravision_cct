@@ -28,7 +28,7 @@ UltraVision is currently extended with the following plugins. Instructions on ho
 ### Database
 
 Ultravision uses a MySQL Database, you can download it here and import it in your database.
-| Database | README |
+| Database | DOWNLOAD |
 | ------ | ------ |
 | MySQL | https://github.com/Panchop10/ultravision_cct/blob/master/database.sql |
 
