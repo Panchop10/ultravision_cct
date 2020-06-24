@@ -25,6 +25,13 @@ UltraVision is currently extended with the following plugins. Instructions on ho
 | MySQL JBDC | https://mvnrepository.com/artifact/mysql/mysql-connector-java/8.0.20 |
 
 
+### Database
+
+Ultravision uses a MySQL Database, you can download it here and import it in your database.
+| Database | README |
+| ------ | ------ |
+| MySQL | https://github.com/Panchop10/ultravision_cct/blob/master/database.sql |
+
 ### Todos
 
  - Write Tests
